@@ -1,0 +1,172 @@
+---
+title: 'Week 8: Lab - Linear Modeling (Making Predictions)'
+author: 'Jonathan Forte'
+date: '3/1/2023'
+output: html_document
+---
+
+---
+
+# Instructions
+The textbook’s chapter on linear models (“Line Up, Please”) introduces 
+**linear predictive modeling** using the workhorse tool known as 
+**multiple regression**. The term “multiple regression” has an odd history, 
+dating back to an early scientific observation of a phenomenon called 
+**“regression to the mean”**. These days, multiple regression is just an 
+interesting name for using a simple linear modeling technique to measuring the 
+connection between one or more **predictor variables** and an **outcome variable**. 
+
+In this exercise, we are going to use an open dataset to explore antelope population.
+
+This is the first exercise of the semester where there is no sample R code to 
+help you along. Because you have had so much practice with R by now, you can 
+create and/or find all of the code you need to accomplish these steps.
+
+---
+
+```{r setup, message = FALSE}
+# Add your library below.
+library(ggplot2)
+library(readxl)
+```
+
+
+# Step 1 - Define "Model"
+Write a definition of a model, based on how the author uses it in this chapter.
+
+> model <- lm(y ~ x, data = dataObject)
+
+
+---
+
+
+# Step 2 - Review the data 
+You can find the data from Cengage's website. 
+This URL will enable you to download the dataset into excel: 
+
+* http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/mlr/excel/mlr01.xls
+
+The more general website can be found at:
+
+* http://college.cengage.com/mathematics/brase/understandable_statistics/7e/students/datasets/mlr/frames/frame.html
+
+If you view this in a spreadsheet, you will find four columns of a small dataset:
+
+* The first column shows the number of fawn in a given spring (fawn are baby antelope). 
+* The second column shows the population of adult antelope.
+* The third shows the annual precipitation that year. 
+* And finally the last column shows how bad the winter was during that year.
+
+```{r, "Step 2"}
+# No code necessary; Just review the data.
+```
+
+---
+
+
+# Step 3 - Read in the data
+You have the option of saving the file to your computer and reading it into R, 
+or you can read the data directly from the web into a dataframe.
+
+```{r, "Step 3"}
+# Write your code below.
+myDF<-as.data.frame(readxl::read_excel("./data/mlr01.xls"))
+colnames(myDF) <- c("nFawn", "adultPop", "precip", "winter")
+
+```
+
+
+---
+
+
+# Step 4 - Inspect the data
+You should inspect the data using `str()` to make sure that 1) all the cases have
+been read in (n=8 years of observations) and 2) that there are four variables.
+
+```{r, "Step 4"}
+# Write your code below.
+str(myDF)
+```
+
+
+---
+
+
+# Step 5 - Create bivariate plots
+Create bivariate plots of the number of baby fawns versus adult antelope population,
+precipitation that year, and severity of the winter.  
+**Your code should produce three separate plots.** Make sure the y-axis and x-axis are labeled. 
+Keeping in mind that the number of fawns is the outcome (or dependent) variable, 
+which axis should it go on in your plots? You can also create scatter plots where 
+size and colors reflect the two variables you didn't use 
+(remember the visualization homework/lab. If you create these plots, you can earn extra 1 point).
+
+Question: which variable is the most highly correlated with Fawn Count?
+
+## Step 5.1 - Fawn Count by Adult Population
+```{r, "Step 5.1"}
+# Write your code below.
+ggplot(data = myDF, aes(x = adultPop, y = nFawn)) + geom_line() + geom_point(aes(size = precip, color = winter))
+```
+
+## Step 5.2 - Fawn Count by Annual Precipitation
+```{r, "Step 5.2"}
+# Write your code below.
+ggplot(data = myDF, aes(x = precip, y = nFawn)) + geom_line() + geom_point(aes(size = adultPop, color = winter))
+```
+
+## Step 5.3 - Fawn Count by Winter Severity Index
+```{r, "Step 5.3"}
+# Write your code below.
+ggplot(data = myDF, aes(x = winter, y = nFawn)) + geom_line() + geom_point(aes(size = precip, color = adultPop))
+```
+
+
+---
+
+
+# Step 6 - Create regression models 
+Create three regression models of increasing complexity using `lm()`, then
+analyze the results. Based on the knowledge you've accumulated from Step 5, develop models.
+
+* **Model one**: Fit the model to predict the number of fawns using the one variable you think is the most highly correlated with the outcome variable based on Step 5.
+* **Model two**: Fit the model to predict the number of fawns using two variables (choose one variable to add to the one variable you selected in Model one)
+* **Model three**: Fit the model to predict the number of fawns from all the three variables.  
+
+## Step 6.1 - Predict Fawn Count using one input variable
+```{r, "Step 6.1"}
+# Write your code below.
+model1 <- lm(nFawn ~ adultPop, data = myDF)
+summary(model1)
+```
+
+## Step 6.2 - Predict Fawn Count using two input variable
+```{r, "Step 6.2"}
+# Write your code below.
+model2 <- lm(nFawn ~ adultPop + precip, data = myDF)
+summary(model2)
+```
+
+## Step 6.3 - Predict Fawn Count using three input variables
+```{r, "Step 6.3"}
+# Write your code below.
+model3 <- lm(nFawn ~ ., data = myDF)
+summary(model3)
+```
+
+## Step 6.4 - Analysis
+Which regression model works best? 
+Which of the predictors are statistically significant in each model? 
+If you wanted to create the most parsimonious model 
+(i.e., the one that did the best job with the fewest predictors), 
+what would it contain? ***You MUST answer these questions***.
+
+> Whichever model "works best" depends on what your datset looks like, what computing power you have available, and what your goal is. For this simple case, the linear model with all three variables as predictors produces the highest adjusted R-squared value, meaning this linear model most closely fits the data. For the first model, the adultPop variable was highly significant. In the second model, neither variable was considered significant (despite the high R-squared of the model). In the third model, all three variables were moderately significant. In my opinion, it could be argued that the first model is the most parsimonious, as it outputs a fairly high R-squared value of 0.86 with only one independent variable: adultPop.
+
+
+---
+
+
+# Step 7 - Upload the compiled file
+Please only include print outs of data sets using "head" function. 
+I will take points off if you include more than two pages of dataset print outs.
